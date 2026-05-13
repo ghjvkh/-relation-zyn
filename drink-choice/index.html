@@ -1,0 +1,229 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>今天喝什么？🥤</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  min-height: 100vh; padding: 20px; overflow-x: hidden;
+  background: linear-gradient(135deg, #fce4ec 0%, #f3e5f5 30%, #e8eaf6 60%, #e0f7fa 100%);
+  display: flex; justify-content: center; align-items: center;
+  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+/* floating decorations */
+.floating {
+  position: fixed; pointer-events: none; font-size: 28px;
+  animation: floatAround 8s ease-in-out infinite; opacity: 0.6; z-index: 0;
+}
+.f1 { top: 8%; left: 5%; animation-delay: 0s; }
+.f2 { top: 15%; right: 8%; animation-delay: 1.5s; }
+.f3 { bottom: 12%; left: 10%; animation-delay: 3s; }
+.f4 { bottom: 20%; right: 6%; animation-delay: 4.5s; }
+.f5 { top: 50%; left: 3%; animation-delay: 6s; }
+.f6 { top: 45%; right: 4%; animation-delay: 2s; }
+@keyframes floatAround {
+  0%,100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-18px) rotate(5deg); }
+  50% { transform: translateY(-8px) rotate(-3deg); }
+  75% { transform: translateY(-22px) rotate(4deg); }
+}
+.container {
+  position: relative; z-index: 1; max-width: 700px; width: 100%;
+  background: rgba(255,255,255,0.78); backdrop-filter: blur(16px);
+  border-radius: 32px; padding: 40px 32px; text-align: center;
+  box-shadow: 0 8px 40px rgba(149,117,205,0.15), 0 2px 8px rgba(0,0,0,0.06);
+}
+.title {
+  font-size: 36px; font-weight: 800;
+  background: linear-gradient(135deg, #f06292, #ce93d8, #42a5f5);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; margin-bottom: 6px;
+}
+.subtitle { font-size: 15px; color: #999; margin-bottom: 32px; }
+.cards { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 32px; }
+@media (max-width: 460px) { .cards { grid-template-columns: 1fr; } }
+.card {
+  position: relative; border: 3px solid transparent;
+  border-radius: 24px; padding: 28px 16px 20px;
+  cursor: pointer; transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+  overflow: hidden; user-select: none;
+}
+.card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.1); }
+.card:active { transform: scale(0.96); }
+.card-bwcj { background: linear-gradient(135deg, #fff3e0, #ffe0b2); border-color: #ffb74d; }
+.card-bwcj .card-emoji { background: #ffb74d; }
+.card-luckin { background: linear-gradient(135deg, #e3f2fd, #bbdefb); border-color: #42a5f5; }
+.card-luckin .card-emoji { background: #42a5f5; }
+.card-heytea { background: linear-gradient(135deg, #f3e5f5, #e1bee7); border-color: #ab47bc; }
+.card-heytea .card-emoji { background: #ab47bc; }
+.card-yidiandian { background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border-color: #66bb6a; }
+.card-yidiandian .card-emoji { background: #66bb6a; }
+.card.selected {
+  transform: scale(1.04);
+  box-shadow: 0 0 0 4px rgba(255,255,255,0.8), 0 12px 36px rgba(0,0,0,0.16);
+}
+.card.selected::after {
+  content: '\\2713'; position: absolute; top: 12px; right: 16px;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: #fff; color: #66bb6a; font-size: 18px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.card-emoji {
+  width: 64px; height: 64px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px; margin: 0 auto 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.card-name { font-size: 20px; font-weight: 700; color: #444; margin-bottom: 4px; }
+.card-desc { font-size: 13px; color: #999; }
+.card-tag {
+  display: inline-block; margin-top: 8px; padding: 4px 12px;
+  border-radius: 20px; font-size: 12px; font-weight: 600;
+}
+.tag-hot { background: #ffcdd2; color: #c62828; }
+.tag-cool { background: #b3e5fc; color: #01579b; }
+.tag-fruit { background: #e1bee7; color: #6a1b9a; }
+.tag-classic { background: #c8e6c9; color: #2e7d32; }
+.btn {
+  display: inline-block; padding: 14px 48px;
+  font-size: 18px; font-weight: 700;
+  border: none; border-radius: 50px;
+  cursor: pointer; transition: all 0.3s;
+  color: #fff;
+  background: linear-gradient(135deg, #f06292, #ce93d8);
+  box-shadow: 0 4px 16px rgba(240,98,146,0.35);
+}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(240,98,146,0.45); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+.result {
+  display: none; margin-top: 24px;
+  padding: 20px; border-radius: 24px;
+  animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+.result .big-emoji { font-size: 56px; display: block; margin-bottom: 8px; }
+.result .msg { font-size: 22px; font-weight: 700; color: #555; }
+.result .sub-msg { font-size: 14px; color: #aaa; margin-top: 4px; }
+.particle {
+  position: fixed; pointer-events: none;
+  font-size: 24px; animation: particleUp 1s ease-out forwards;
+  z-index: 999;
+}
+@keyframes particleUp {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-120px) scale(1.5); }
+}
+.footer { margin-top: 24px; font-size: 12px; color: #ccc; }
+</style>
+</head>
+<body>
+<span class="floating f1">🧋</span>
+<span class="floating f2">🌸</span>
+<span class="floating f3">🍵</span>
+<span class="floating f4">✨</span>
+<span class="floating f5">🫧</span>
+<span class="floating f6">🍬</span>
+<div class="container">
+  <h1 class="title">今天喝什么？</h1>
+  <p class="subtitle">选一杯你喜欢的吧～ (◕‿◕✿)</p>
+  <div class="cards">
+    <div class="card card-bwcj" onclick="choose('bwcj', this)">
+      <div class="card-emoji">🍵</div>
+      <div class="card-name">霸王茶姬</div>
+      <div class="card-desc">国风鲜奶茶 · 伯牙绝弦</div>
+      <span class="card-tag tag-hot">🔥 热门</span>
+    </div>
+    <div class="card card-luckin" onclick="choose('luckin', this)">
+      <div class="card-emoji">☕</div>
+      <div class="card-name">瑞幸</div>
+      <div class="card-desc">生椰拿铁 · 性价比之王</div>
+      <span class="card-tag tag-cool">💙 提神</span>
+    </div>
+    <div class="card card-heytea" onclick="choose('heytea', this)">
+      <div class="card-emoji">🍇</div>
+      <div class="card-name">喜茶</div>
+      <div class="card-desc">多肉葡萄 · 灵感之茶</div>
+      <span class="card-tag tag-fruit">💜 果茶</span>
+    </div>
+    <div class="card card-yidiandian" onclick="choose('yidiandian', this)">
+      <div class="card-emoji">🧋</div>
+      <div class="card-name">一点点</div>
+      <div class="card-desc">波霸奶茶 · 经典永不过时</div>
+      <span class="card-tag tag-classic">💚 经典</span>
+    </div>
+  </div>
+  <button class="btn" id="btn" disabled onclick="confirm()">选好了！</button>
+  <div class="result" id="result">
+    <span class="big-emoji" id="resultEmoji"></span>
+    <p class="msg" id="resultMsg"></p>
+    <p class="sub-msg" id="resultSub"></p>
+  </div>
+  <p class="footer">🍰 喝杯饮品，开心一整天 ~</p>
+</div>
+<script>
+let selected = null;
+const data = {
+  bwcj:    { emoji: '🍵', msg: '霸王茶姬！', sub: '国风鲜奶茶，伯牙绝弦 yyds ~' },
+  luckin:  { emoji: '☕', msg: '瑞幸咖啡！', sub: '生椰拿铁，打工人续命神器 💪' },
+  heytea:  { emoji: '🍇', msg: '喜茶！', sub: '多肉葡萄，灵感满满的一杯 🍇' },
+  yidiandian: { emoji: '🧋', msg: '一点点！', sub: '波霸奶茶少冰三分糖，经典好喝 ~' }
+};
+function choose(brand, el) {
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selected = brand;
+  document.getElementById('btn').disabled = false;
+  spawnParticles(el);
+}
+function confirm() {
+  if (!selected) return;
+  const d = data[selected];
+  document.getElementById('resultEmoji').textContent = d.emoji;
+  document.getElementById('resultMsg').textContent = '你选择了 ' + d.msg;
+  document.getElementById('resultSub').textContent = d.sub;
+  const r = document.getElementById('result');
+  r.style.display = 'block';
+  r.style.background = selected === 'bwcj' ? '#fff3e0' :
+                       selected === 'luckin' ? '#e3f2fd' :
+                       selected === 'heytea' ? '#f3e5f5' : '#e8f5e9';
+  r.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  for (let i = 0; i < 12; i++) {
+    setTimeout(() => spawnGlobalParticle(), i * 60);
+  }
+}
+function spawnParticles(el) {
+  const rect = el.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+  const emojis = ['💖','⭐','🌸','🍬','✨','🫧','💫','🎀'];
+  for (let i = 0; i < 6; i++) {
+    const p = document.createElement('span');
+    p.className = 'particle';
+    p.textContent = emojis[i % emojis.length];
+    p.style.left = (cx + (Math.random() - 0.5) * 100) + 'px';
+    p.style.top = (cy + (Math.random() - 0.5) * 60) + 'px';
+    p.style.animationDuration = (0.8 + Math.random() * 0.6) + 's';
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 1200);
+  }
+}
+function spawnGlobalParticle() {
+  const emojis = ['🥤','🧋','☕','🍵','🍇','💖','✨','🌸'];
+  const p = document.createElement('span');
+  p.className = 'particle';
+  p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+  p.style.left = (20 + Math.random() * 60) + '%';
+  p.style.top = (40 + Math.random() * 30) + '%';
+  p.style.animationDuration = (0.8 + Math.random() * 0.8) + 's';
+  document.body.appendChild(p);
+  setTimeout(() => p.remove(), 1500);
+}
+</script>
+</body>
+</html>
